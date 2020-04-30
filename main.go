@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"github.com/pkg/sftp"
 	"golang.org/x/crypto/ssh"
-	"gomanyssh/utils"
+	"github.com/gomanyssh/utils"
 	"io/ioutil"
 	"log"
 	"net"
