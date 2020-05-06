@@ -18,6 +18,8 @@ import (
 	"time"
 )
 
+//定义包级变量
+//先打开1000个缓冲chan
 var ipResultChanel = make(chan string,1000)
 
 //存放ip
@@ -50,9 +52,11 @@ var (
 	sshCmd *string
 	sshScpSourceFile *string
 	sshScpDestPath *string
+
+	ipFile *string
 )
 
-
+//命令行变色
 const (
 	color_red = uint8(iota + 91)
 	color_green		//	绿
@@ -72,6 +76,7 @@ func main() {
 	sshCmd = flag.String("c", "", "需要执行的命令,可以用;或&&连接一长串命令,暂不支持搭配-s或-d同时执行")
 	sshScpSourceFile = flag.String("s", "", "需要复制到远程主机的文件,单独使用没有效果,必须搭配-d 同时使用")
 	sshScpDestPath = flag.String("d", "", "需要复制到远程主机的路径,单独使用没有效果,必须搭配-s 同时使用")
+	ipFile = flag.String("f", "ip.txt", "ip地址文件路径")
 
 	flag.Parse()
 
@@ -101,7 +106,7 @@ func main() {
 	logFile := open_log("task.log")
 	//打开脚本运行错误日志文件
 	errLogFile := open_log("task_error.log")
-	//打开脚本运行错误日志文件
+	//打开脚本统计正在运行ip日志文件
 	ipStillRunningFile := open_log("task_ipstillrunning.log")
 
 	utils.Write_log(logFile,"############### 新的并发任务开始  #################")
@@ -114,7 +119,7 @@ func main() {
 
 
 
-	line_number := utils.ParseIpFile("ip.txt",file_map_ips,file_map_port,file_map_user,file_map_password,file_map_keyfilepassword)
+	line_number := utils.ParseIpFile(*ipFile,file_map_ips,file_map_port,file_map_user,file_map_password,file_map_keyfilepassword)
 
 
 	//先计算当前ip的总数量
@@ -123,6 +128,7 @@ func main() {
 
 	//在这里开启ssh协程,从下标1开始
 	for i:=1; i<=len_file_map_ips; i++ {
+		//由于map每次打印都不一定是按顺序的,使用下标可以固定顺序,也可以从下标取到刚好对应的ip信息,相当于先排序
 		//传ip端口,用户名,密码到协程
 		go ssh_command(i,file_map_ips[i],logFile,errLogFile,&m)
 	}

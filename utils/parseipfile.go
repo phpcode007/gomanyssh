@@ -13,11 +13,6 @@ import (
 
 func ParseIpFile(ipFileName string, ips map[int]string, port map[int]string, user map[int]string, password map[int]string, keyfilepassword map[int]string) int {
 
-	//默认是在当前目录,手动创建ip文件
-	filePath, _ := os.Getwd()
-
-	ipFileName = filePath + "/" + ipFileName
-
 	//读取ip和密码/证书文件
 	fileEveryLine, err := os.Open(ipFileName)
 	if err != nil {
@@ -112,3 +107,5 @@ func checkPort(port string) bool {
 
 	return false
 }
+
+
