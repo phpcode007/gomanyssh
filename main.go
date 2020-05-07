@@ -144,24 +144,38 @@ func main() {
 	}()
 
 
-	//如果ip多,运行时间可能会比较长,每10秒需要检查一下当前有多少ip还在执行中
+	//如果ip多,运行时间可能会比较长,每1秒需要检查一下当前有多少ip还在执行中,写入文件方便检查
 	go func() {
 		for {
-			time.Sleep(10 * time.Second)
+			time.Sleep(1 * time.Second)
 			ipRunningCount := len(file_map_ips)
 
 
-			fmt.Println(utils.Red("当前还在运行的ip总数: " + strconv.Itoa(ipRunningCount) ))
 			utils.Write_log(ipStillRunningFile,"当前还在运行的ip总数: " + strconv.Itoa(ipRunningCount) )
 
 			for _,ip :=range file_map_ips{
-				fmt.Println(utils.Red(ip))
-
 				utils.Write_log(ipStillRunningFile,ip)
 			}
 
 		}
 	}()
+
+
+	//当并发数高的时候,打印过多会造成卡死现象,间隔10秒打一印一次好一点
+	go func() {
+		for {
+			time.Sleep(10 * time.Second)
+			ipRunningCount := len(file_map_ips)
+
+			fmt.Println(utils.Red("当前还在运行的ip总数: " + strconv.Itoa(ipRunningCount)))
+
+			for _,ip :=range file_map_ips{
+				fmt.Println(utils.Red(ip))
+			}
+		}
+	}()
+
+
 
 	//在这里阻塞,等待每个协程返回的结果,从下标1开始
 	for i:=1; i<=len_file_map_ips; i++ {
